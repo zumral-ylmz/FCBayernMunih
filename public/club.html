@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>12th Coach · Club dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
 <link rel="stylesheet" href="/styles.css">
 <style>
   .scoreline { font-weight: 700; }
@@ -16,7 +19,7 @@
     background: none; border: 0; cursor: pointer; padding: 0; min-width: 44px;
   }
   .marker .pin {
-    min-width: 40px; height: 30px; padding: 0 8px; border-radius: 9px; display: grid; place-items: center; font-size: 12px; font-weight: 800;
+    min-width: 40px; height: 30px; padding: 0 8px; border-radius: 9px; display: grid; place-items: center; font-size: 12px; font-weight: 700;
     background: var(--surface); border: 2px solid var(--axis); color: var(--ink-2); font-variant-numeric: tabular-nums;
   }
   .marker .stem { width: 2px; height: 16px; background: var(--axis); }
@@ -47,7 +50,7 @@
   </div>
   <span class="chip chip-good" data-tip="Only aggregated data is stored and shown here. No individual fan's answers are visible anywhere in this dashboard.">Anonymised · consent-based · aggregates only</span>
   <span class="spacer"></span>
-  <nav class="navlinks"><a href="/fan">Fan view</a><a href="/operator">Operator</a><a href="/">About</a></nav>
+  <nav class="navlinks"><a href="/demo">Demo</a><a href="/fan">Fan view</a><a href="/operator">Operator</a><a href="/">About</a></nav>
 </header>
 
 <main class="page" id="view-live">

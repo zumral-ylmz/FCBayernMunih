@@ -4,6 +4,9 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>12th Coach · Operator panel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
 <link rel="stylesheet" href="/styles.css">
 <style>
   .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
@@ -11,7 +14,7 @@
   .stack-v > * + * { margin-top: 16px; }
   .controls { display: flex; gap: 10px; flex-wrap: wrap; }
   .controls .btn { flex: 1 1 150px; }
-  .status { margin-top: 14px; padding: 12px; border-radius: 10px; background: var(--surface-2); font-weight: 600; }
+  .status { margin-top: 14px; padding: 12px; border-radius: 10px; background: var(--surface-2); font-weight: 700; }
   .status.wait { background: var(--red-soft); color: var(--red); }
   .mrow { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
   .mrow.active { border-color: var(--red); }
@@ -28,7 +31,7 @@
   table.metrics { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
   table.metrics th, table.metrics td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
   table.metrics th:first-child, table.metrics td:first-child { text-align: left; }
-  table.metrics th { color: var(--muted); font-size: 12px; font-weight: 600; }
+  table.metrics th { color: var(--muted); font-size: 12px; font-weight: 700; }
 </style>
 </head>
 <body>
@@ -36,7 +39,7 @@
   <a class="brand" href="/"><span class="brand-mark">12</span>12th Coach</a>
   <span class="chip chip-red">Operator panel</span>
   <span class="spacer"></span>
-  <nav class="navlinks"><a href="/fan" target="_blank">Fan view</a><a href="/club" target="_blank">Club dashboard</a><a href="/">About</a></nav>
+  <nav class="navlinks"><a href="/demo">Demo</a><a href="/fan" target="_blank">Fan view</a><a href="/club" target="_blank">Club dashboard</a><a href="/">About</a></nav>
 </header>
 <main class="page">
   <p class="error" id="auth-error" hidden>This panel is protected. Open it as /operator?key=YOUR_OPERATOR_KEY.</p>
@@ -56,7 +59,7 @@
       </section>
       <section class="card">
         <h3>Decision moments</h3>
-        <p class="sub">After voting closes, enter what the coach actually did. That resolves the moment, awards Fan IQ and stores the record in the Fan Insight Pool.</p>
+        <p class="sub">After voting closes, enter what the coach actually did. That resolves the Decision Moment, awards Fan IQ (and Brave Call bonuses) and stores the record in the Fan Insight Pool.</p>
         <div id="moments"></div>
       </section>
     </div>

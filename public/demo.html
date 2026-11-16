@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12th Coach · Demo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
+<link rel="stylesheet" href="/styles.css">
+<script src="/common.js"></script>
+<script>fanId(); /* create the fan id before the phone frame loads, so both share it */</script>
+<style>
+  body { background: #000; color: #f5f5f7; min-height: 100vh; }
+  .top { display: flex; align-items: center; justify-content: space-between; padding: 18px 28px; }
+  .top .brand { color: #f5f5f7; }
+  .top a.link { color: #86868b; text-decoration: none; font-size: 14px; font-weight: 700; }
+  .top a.link:hover { color: #fff; }
+  .layout {
+    max-width: 1080px; margin: 0 auto; padding: 8px 28px 40px; display: grid;
+    grid-template-columns: auto minmax(0, 1fr); gap: 72px; align-items: center; min-height: calc(100vh - 80px);
+  }
+  .phone-wrap { position: relative; display: flex; justify-content: center; }
+  .phone-wrap::before {
+    content: ""; position: absolute; left: 50%; top: 50%; width: 620px; height: 620px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(225, 6, 44, .42), rgba(225, 6, 44, .08) 60%, transparent 75%); pointer-events: none;
+  }
+  .device {
+    position: relative; width: 390px; height: min(800px, calc(100vh - 110px)); min-height: 600px; border-radius: 56px; padding: 11px;
+    background: linear-gradient(145deg, #3a3a3c, #0b0b0c 40%, #2c2c2e);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px rgba(0, 0, 0, .7), inset 0 0 2px rgba(255, 255, 255, .4);
+  }
+  .device iframe { width: 100%; height: 100%; border: 0; border-radius: 46px; background: #f5f5f7; display: block; }
+
+  .story { max-width: 460px; }
+  .progress { display: flex; gap: 6px; margin-bottom: 28px; }
+  .progress span { width: 34px; height: 4px; border-radius: 2px; background: #2c2c2e; transition: background .3s; }
+  .progress span.done { background: #f5f5f7; }
+  .progress span.now { background: var(--red); }
+  .kicker { font-size: 15px; font-weight: 700; color: #ff3b52; min-height: 22px; }
+  .story h1 { font-size: clamp(40px, 5vw, 60px); letter-spacing: -.045em; line-height: 1.02; margin-top: 10px; }
+  .story p.body { font-size: 19px; line-height: 1.45; color: #a1a1a6; margin-top: 18px; }
+  .story p.body q { color: #f5f5f7; quotes: "“" "”"; }
+  .actions { margin-top: 32px; display: flex; flex-direction: column; align-items: flex-start; gap: 16px; }
+  .actions .btn-primary { min-height: 54px; padding: 0 32px; font-size: 17px; }
+  .quiet { background: none; border: 0; padding: 0; color: #86868b; font-weight: 700; cursor: pointer; text-decoration: none; font-size: 15px; }
+  .quiet:hover { color: #fff; }
+  .omt { margin-top: 30px; padding-top: 20px; border-top: 1px solid #2c2c2e; color: #a1a1a6; font-size: 15px; }
+  .omt b { color: #f5f5f7; }
+  .omt a { color: #ff3b52; font-weight: 700; text-decoration: none; }
+  .status { margin-top: 40px; font-size: 13px; color: #6e6e73; font-variant-numeric: tabular-nums; }
+  .error { margin-top: 10px; color: #ff3b52; }
+  .fade { animation: fade .5s ease; }
+  @keyframes fade { from { opacity: 0; transform: translateY(10px); } }
+
+  @media (max-width: 900px) {
+    .layout { grid-template-columns: 1fr; gap: 36px; min-height: 0; }
+    .story { order: -1; max-width: none; }
+    .device { width: 100%; max-width: 390px; height: 720px; }
+    .phone-wrap::before { width: 420px; height: 420px; }
+  }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="/"><span class="brand-mark">12</span>12th Coach</a>
+  <a class="link" href="/">About</a>
+</header>
+<main class="layout">
+  <div class="phone-wrap">
+    <div class="device"><iframe src="/fan?embed=1" title="Fan view"></iframe></div>
+  </div>
+  <div class="story">
+    <div class="progress" id="progress" aria-hidden="true"></div>
+    <div id="panel"></div>
+    <p class="error" id="error" hidden></p>
+    <p class="status" id="status"></p>
+  </div>
+</main>
+<script src="/demo.js"></script>
+</body>
+</html>

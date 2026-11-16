@@ -40,7 +40,7 @@ import gemini                # noqa: E402
 from engine import Engine    # noqa: E402
 
 OPERATOR_KEY = os.environ.get("OPERATOR_KEY", "").strip()
-PAGES = {"/": "index.html", "/fan": "fan.html", "/club": "club.html", "/operator": "operator.html"}
+PAGES = {"/": "index.html", "/demo": "demo.html", "/fan": "fan.html", "/club": "club.html", "/operator": "operator.html"}
 ID_RE = re.compile(r"^[A-Za-z0-9_-]{6,40}$")
 
 

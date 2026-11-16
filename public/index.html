@@ -4,163 +4,338 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>12th Coach · Every fan a voice in the match</title>
-<meta name="description" content="12th Coach: live decision moments during the match, merged by Gemini into one Fan Pulse. A fan idea for FC Bayern Fan AI-DEATION.">
+<meta name="description" content="12th Coach: live Decision Moments during the match, merged by Gemini into one Fan Pulse. A fan idea for FC Bayern Fan AI-DEATION.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&display=swap">
 <link rel="stylesheet" href="/styles.css">
 <style>
+  /* Keynote page: black stage, one object, one light, lots of space. */
+  body { background: #000; color: #f5f5f7; }
   .wrap { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
-  .hero { background: var(--red-strong); color: #fff; padding: 56px 0 64px; }
-  .hero .wrap { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 48px; align-items: center; }
-  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; opacity: .85; }
-  .hero h1 { font-size: clamp(40px, 7vw, 68px); letter-spacing: -.03em; margin: 10px 0 6px; }
-  .hero .tag { font-size: clamp(20px, 3vw, 26px); font-weight: 600; margin-bottom: 16px; }
-  .hero p.lead { font-size: 17px; max-width: 52ch; opacity: .95; }
-  .cta { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
-  .cta .btn { border-color: rgba(255, 255, 255, .5); background: transparent; color: #fff; }
-  .cta .btn.solid { background: #fff; color: #a30d25; border-color: #fff; }
-  .mock { background: #fff; color: #141414; border-radius: 22px; padding: 18px; box-shadow: 0 20px 50px rgba(0, 0, 0, .3); max-width: 360px; margin-left: auto; }
-  .mock h3 { font-size: 19px; margin: 8px 0 12px; }
-  .mock .chip { background: #fbe9ec; color: #c4122f; }
-  .mock .res-row { margin-bottom: 10px; }
-  .mock .track { background: #f1f0ec; }
-  .mock .pulse { background: #f1f0ec; margin-top: 12px; }
-  .mock .pulse-head { color: #52514e; }
-  .mock .pulse p { font-size: 14px; }
-  section.band { padding: 56px 0; }
-  section.band:nth-of-type(even) { background: var(--surface); border-block: 1px solid var(--line); }
-  .band h2 { font-size: clamp(24px, 4vw, 32px); margin-bottom: 8px; }
-  .band .intro { color: var(--ink-2); max-width: 65ch; margin-bottom: 26px; font-size: 16px; }
-  .step .n { width: 34px; height: 34px; border-radius: 10px; background: var(--red-soft); color: var(--red); font-weight: 800; display: grid; place-items: center; margin-bottom: 10px; }
-  .step h3 { font-size: 16px; margin-bottom: 4px; }
-  .step p, .view p { color: var(--ink-2); font-size: 14px; }
-  .view { display: flex; flex-direction: column; gap: 6px; text-decoration: none; color: inherit; }
-  .view:hover { border-color: var(--red); }
-  .view .go { margin-top: auto; padding-top: 8px; color: var(--red); font-weight: 700; font-size: 14px; }
-  ol.flow { margin: 0; padding-left: 22px; color: var(--ink-2); }
-  ol.flow li { margin-bottom: 6px; }
-  .pilot { border-left: 4px solid var(--red); }
-  .pilot h3 { font-size: 20px; margin-bottom: 8px; }
-  footer { padding: 28px 0 40px; color: var(--muted); font-size: 13px; }
+  .grey { color: #86868b; }
+  .redtext { color: #ff3b52; }
+  .center { text-align: center; }
+  section { padding: 120px 0; }
+  .light { background: #f5f5f7; color: #1d1d1f; }
+  .light .grey { color: #6e6e73; }
+  .light .redtext { color: var(--red); }
+
+  .eyebrow { font-size: 15px; font-weight: 700; color: #ff3b52; margin-bottom: 14px; }
+  .light .eyebrow { color: var(--red); }
+  .display { font-size: clamp(44px, 8vw, 96px); letter-spacing: -.045em; line-height: 1.02; }
+  .headline { font-size: clamp(34px, 5.4vw, 64px); letter-spacing: -.04em; line-height: 1.05; }
+  .lead { font-size: clamp(19px, 2.2vw, 24px); line-height: 1.4; max-width: 34ch; margin: 20px auto 0; }
+  .btn-hero { min-height: 52px; padding: 0 30px; font-size: 17px; }
+  .btn-ghost { background: transparent; color: #f5f5f7; border-color: rgba(255, 255, 255, .3); }
+  .btn-ghost:hover { border-color: #fff; }
+
+  /* ---- hero ---- */
+  .topnav { position: absolute; top: 0; left: 0; right: 0; z-index: 2; display: flex; align-items: center; justify-content: space-between; padding: 18px 24px; }
+  .topnav .brand { color: #f5f5f7; }
+  .topnav a.link { color: #86868b; text-decoration: none; font-size: 14px; font-weight: 700; }
+  .topnav a.link:hover { color: #fff; }
+  .hero { padding: 120px 0 40px; text-align: center; overflow: hidden; }
+  .hero .hook { font-size: clamp(17px, 2vw, 21px); color: #86868b; margin-bottom: 14px; }
+  .hero h1 { font-size: clamp(64px, 13vw, 156px); letter-spacing: -.055em; line-height: .95; }
+  .hero .line { font-size: clamp(22px, 3vw, 32px); font-weight: 700; letter-spacing: -.02em; margin-top: 16px; }
+  .hero .cta { margin-top: 30px; display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  .stage { position: relative; height: 640px; margin-top: 60px; display: flex; justify-content: center; }
+  .glow {
+    position: absolute; left: 50%; top: 52%; width: 760px; height: 520px; transform: translate(-50%, -50%);
+    background: radial-gradient(closest-side, rgba(225, 6, 44, .55), rgba(225, 6, 44, .12) 55%, transparent 75%);
+    filter: blur(10px); pointer-events: none;
+  }
+  .floor {
+    position: absolute; left: 50%; bottom: 0; width: 640px; height: 120px; transform: translateX(-50%);
+    background: radial-gradient(closest-side, rgba(255, 255, 255, .10), transparent 70%); pointer-events: none;
+  }
+
+  /* the one object: a phone showing a Decision Moment */
+  .device {
+    position: relative; width: 290px; height: 590px; border-radius: 52px; padding: 11px;
+    background: linear-gradient(145deg, #3a3a3c, #0b0b0c 40%, #2c2c2e);
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, .14), 0 40px 80px rgba(0, 0, 0, .7), inset 0 0 2px rgba(255, 255, 255, .4);
+    -webkit-box-reflect: below 6px linear-gradient(transparent 72%, rgba(255, 255, 255, .16));
+  }
+  .screen { width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: #f5f5f7; color: #1d1d1f; text-align: left; display: flex; flex-direction: column; }
+  .sc-head { background: #000; color: #fff; padding: 34px 18px 14px; }
+  .sc-top { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 700; }
+  .sc-top .live-dot { margin-right: 2px; }
+  .sc-top span:last-child { margin-left: auto; color: #86868b; }
+  .sc-score { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px; margin-top: 10px; font-size: 12px; font-weight: 700; }
+  .sc-score b { font-size: 28px; letter-spacing: -.02em; }
+  .sc-score span:last-child { text-align: right; }
+  .sc-bar { height: 3px; background: rgba(255, 255, 255, .2); border-radius: 2px; margin-top: 12px; }
+  .sc-bar i { display: block; width: 64%; height: 100%; background: var(--red); border-radius: 2px; }
+  .sc-card { margin: 12px; background: #fff; border-radius: 22px; padding: 16px; box-shadow: 0 8px 24px rgba(0, 0, 0, .08); }
+  .sc-card .eb { font-size: 11px; font-weight: 700; color: var(--red); }
+  .sc-card h4 { font-size: 18px; line-height: 1.2; margin: 6px 0 12px; letter-spacing: -.02em; }
+  .sc-opt { display: flex; justify-content: space-between; align-items: center; border: 2px solid #e3e3e8; border-radius: 14px; padding: 9px 12px; margin-bottom: 7px; font-size: 13px; font-weight: 700; }
+  .sc-opt small { display: block; font-weight: 400; color: #6e6e73; font-size: 11px; }
+  .sc-opt.on { border-color: var(--red); background: var(--red-soft); }
+  .sc-opt.on::after { content: ""; width: 18px; height: 18px; border-radius: 50%; background: var(--red) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M4 8.5l2.5 2.5L12 5.5' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center/14px no-repeat; }
+  .sc-btn { margin-top: 10px; background: var(--red); color: #fff; border-radius: 999px; text-align: center; font-weight: 700; font-size: 14px; padding: 11px; }
+  .sc-time { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 700; color: var(--red); margin-bottom: 10px; }
+  .sc-time div { flex: 1; height: 4px; border-radius: 2px; background: var(--red-soft); }
+  .sc-time div i { display: block; width: 70%; height: 100%; background: var(--red); border-radius: 2px; }
+
+  /* ---- why ---- */
+  .why p.big { font-size: clamp(30px, 4.6vw, 56px); font-weight: 700; letter-spacing: -.035em; line-height: 1.1; max-width: 18ch; margin: 0 auto; }
+  .why p.body { font-size: clamp(18px, 2vw, 22px); max-width: 40ch; margin: 28px auto 0; line-height: 1.5; }
+
+  /* ---- three things, one app ---- */
+  .three { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
+  .thing { background: #111113; border-radius: 28px; padding: 40px 28px; text-align: center; border: 1px solid #1f1f22; }
+  .thing svg { width: 64px; height: 64px; margin-bottom: 22px; }
+  .thing h3 { font-size: 26px; letter-spacing: -.03em; }
+  .thing p { color: #86868b; margin-top: 8px; font-size: 15px; }
+  .payoff { font-size: clamp(28px, 4vw, 48px); font-weight: 700; letter-spacing: -.035em; margin-top: 64px; line-height: 1.1; }
+
+  /* ---- proof: numbers as experiences ---- */
+  .proof { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
+  .fact { background: #fff; border-radius: 28px; padding: 40px 36px; }
+  .fact .name { font-size: 15px; font-weight: 700; color: var(--red); }
+  .fact .figure { font-size: clamp(44px, 6vw, 72px); font-weight: 700; letter-spacing: -.05em; line-height: 1; margin: 14px 0 12px; }
+  .fact p { color: #6e6e73; font-size: 17px; line-height: 1.45; }
+  .fact p b { color: #1d1d1f; }
+
+  /* ---- what we left out ---- */
+  .out { margin-top: 48px; border-top: 1px solid #2a2a2d; }
+  .out-row { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px; padding: 30px 0; border-bottom: 1px solid #2a2a2d; align-items: baseline; }
+  .out-row h3 { font-size: clamp(22px, 2.6vw, 30px); letter-spacing: -.03em; text-decoration: line-through; text-decoration-color: var(--red); text-decoration-thickness: 3px; }
+  .out-row p { color: #86868b; font-size: 18px; line-height: 1.45; }
+
+  /* ---- earned, not bought ---- */
+  .tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; margin-top: 56px; }
+  .tier { background: #fff; border-radius: 28px; padding: 34px 30px; }
+  .tier .pts { font-size: 15px; font-weight: 700; color: var(--red); }
+  .tier h3 { font-size: 28px; letter-spacing: -.03em; margin-top: 8px; }
+  .tier p { color: #6e6e73; margin-top: 8px; }
+  .tier.top { background: #1d1d1f; color: #fff; }
+  .tier.top p { color: #a1a1a6; }
+  .tier.top .pts { color: #ff3b52; }
+
+  /* ---- one more thing ---- */
+  .omt { position: relative; overflow: hidden; }
+  .omt .glow { top: 70%; opacity: .7; }
+  .ask { position: relative; max-width: 620px; margin: 56px auto 0; text-align: left; }
+  .bubble { border-radius: 22px; padding: 16px 20px; font-size: 17px; line-height: 1.45; }
+  .bubble.q { background: var(--red); color: #fff; margin-left: auto; max-width: 80%; border-bottom-right-radius: 6px; }
+  .bubble.a { background: #1c1c1e; color: #f5f5f7; margin-top: 12px; max-width: 92%; border-bottom-left-radius: 6px; border: 1px solid #2c2c2e; }
+  .bubble.a small { display: block; color: #86868b; font-size: 13px; margin-top: 10px; }
+
+  /* ---- peak ---- */
+  .peak { padding: 160px 0; }
+  .peak .display { max-width: 14ch; margin: 0 auto; }
+
+  /* ---- first test ---- */
+  .pilot-card { background: #fff; border-radius: 28px; padding: 40px 36px; margin-top: 48px; text-align: left; }
+  .pilot-card h3 { font-size: 26px; letter-spacing: -.03em; }
+  .pilot-card p { color: #6e6e73; font-size: 17px; margin-top: 10px; line-height: 1.5; }
+  .pilot-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 16px; text-align: left; }
+  .pilot-grid .pilot-card { margin-top: 0; }
+  .pilot-grid ol { margin: 12px 0 0; padding-left: 20px; color: #6e6e73; font-size: 16px; line-height: 1.6; }
+  .stats { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; margin-top: 24px; }
+  .stat .v { font-size: 40px; font-weight: 700; letter-spacing: -.04em; color: #1d1d1f; }
+  .stat .l { font-size: 13px; color: #6e6e73; }
+
+  footer { padding: 40px 0 56px; color: #6e6e73; font-size: 12px; border-top: 1px solid #1f1f22; }
+  footer nav { display: flex; gap: 18px; flex-wrap: wrap; margin-bottom: 14px; }
+  footer nav a { color: #a1a1a6; text-decoration: none; font-size: 13px; font-weight: 700; }
+  footer nav a:hover { color: #fff; }
+
   @media (max-width: 860px) {
-    .hero .wrap { grid-template-columns: 1fr; }
-    .mock { margin: 0 auto; }
+    section { padding: 88px 0; }
+    .three, .proof, .tiers, .pilot-grid { grid-template-columns: 1fr; }
+    .out-row { grid-template-columns: 1fr; gap: 8px; }
+    .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .stage { height: 600px; transform: scale(.92); transform-origin: top center; }
+    .glow { width: 480px; }
   }
 </style>
 </head>
 <body>
 
-<header class="hero">
-  <div class="wrap">
-    <div>
-      <div class="eyebrow">A fan idea for FC Bayern Fan AI-DEATION</div>
-      <h1>12th Coach</h1>
-      <div class="tag">Every fan a voice in the match.</div>
-      <p class="lead">During live games, Gemini follows the match and opens short decision moments in the club app: who should come on, should the shape change, who is your player of the moment? Fans answer in seconds. Gemini merges tens of thousands of answers into one live Fan Pulse: what fans think, and why.</p>
-      <div class="cta">
-        <a class="btn solid" href="/fan">Open the fan view</a>
-        <a class="btn" href="/operator">Run the demo</a>
-        <a class="btn" href="/club">Club dashboard</a>
-      </div>
-    </div>
-    <div class="mock" aria-hidden="true">
-      <span class="chip">58' · Decision moment</span>
-      <h3>Who should come on?</h3>
-      <div class="res-row"><div class="res-head"><span class="dot" style="background:#2a78d6"></span><span class="res-label">Emre Yıldıran</span><span class="res-val">45%</span></div><div class="track"><div class="fill" style="width:45%;background:#2a78d6"></div></div></div>
-      <div class="res-row"><div class="res-head"><span class="dot" style="background:#1baf7a"></span><span class="res-label">Luca Bianchetti</span><span class="res-val">25%</span></div><div class="track"><div class="fill" style="width:25%;background:#1baf7a"></div></div></div>
-      <div class="res-row"><div class="res-head"><span class="dot" style="background:#eb6834"></span><span class="res-label">Jonas Feldner</span><span class="res-val">22%</span></div><div class="track"><div class="fill" style="width:22%;background:#eb6834"></div></div></div>
-      <div class="pulse"><div class="pulse-head">Fan Pulse · Gemini</div><p>Fans want pace against tired full-backs. The stadium leans to Yıldıran, fans abroad to Bianchetti's creativity.</p></div>
-    </div>
-  </div>
+<header class="topnav">
+  <a class="brand" href="/"><span class="brand-mark">12</span>12th Coach</a>
+  <a class="link" href="/demo">Demo</a>
 </header>
 
-<section class="band">
+<!-- 01 · Hook and reveal -->
+<section class="hero">
   <div class="wrap">
-    <h2>How it works</h2>
-    <p class="intro">Decisions stay with the coach. The feeling of being part of them goes to the fans.</p>
-    <div class="grid grid-4">
-      <div class="step"><div class="n">1</div><h3>A decision moment opens</h3><p>Gemini follows the match events and opens a short, forward-looking question at the right minute.</p></div>
-      <div class="step"><div class="n">2</div><h3>Fans answer in seconds</h3><p>One tap and, if they like, one line of reasoning in any language. In the stadium or on a second screen at home.</p></div>
-      <div class="step"><div class="n">3</div><h3>Gemini writes the Fan Pulse</h3><p>All answers and reasons, in English, German, Turkish and more, become one live summary and three reason clusters.</p></div>
-      <div class="step"><div class="n">4</div><h3>The coach decides, Fan IQ lands</h3><p>Fans whose call matches the coach earn Fan IQ points. Points unlock scarves, jerseys and experiences.</p></div>
+    <p class="hook reveal">What if 75,000 fans could coach along?</p>
+    <h1 class="reveal">12th Coach.</h1>
+    <p class="line reveal">Every fan a voice in the match.</p>
+    <div class="cta reveal"><a class="btn btn-primary btn-hero" href="/demo">Try the demo</a></div>
+  </div>
+  <div class="stage reveal" aria-hidden="true">
+    <div class="glow"></div>
+    <div class="floor"></div>
+    <div class="device">
+      <div class="screen">
+        <div class="sc-head">
+          <div class="sc-top"><span class="live-dot on"></span>Live<span>58'</span></div>
+          <div class="sc-score"><span>FC Bayern</span><b>1 : 1</b><span>SV Nordhafen</span></div>
+          <div class="sc-bar"><i></i></div>
+        </div>
+        <div class="sc-card">
+          <div class="eb">58' · Decision Moment</div>
+          <h4>Who should come on?</h4>
+          <div class="sc-time"><div><i></i></div>0:21</div>
+          <div class="sc-opt on"><span>Emre Yıldıran<small>Winger · pace</small></span></div>
+          <div class="sc-opt"><span>Jonas Feldner<small>Striker · aerial threat</small></span></div>
+          <div class="sc-opt"><span>Luca Bianchetti<small>Playmaker · creativity</small></span></div>
+          <div class="sc-btn">Make the call</div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<section class="band">
+<!-- 02 · Why we exist -->
+<section class="why light center">
   <div class="wrap">
-    <h2>What makes it special</h2>
-    <p class="intro">Rewards for loyalty and football knowledge, not for spending. And a data source the club owns.</p>
-    <div class="grid grid-3">
-      <div class="card"><h3>Fan IQ</h3><p class="muted">+10 when your call matches the coach's decision, +5 bonus when you were in the minority and still right. Never negative.</p></div>
-      <div class="card"><h3>Loyalty weight</h3><p class="muted">Every home match attended this season adds 0.05 to your vote weight, up to 2.0×. A reason to come to the stadium and to open the app.</p></div>
-      <div class="card"><h3>Fan Insight Pool</h3><p class="muted">Every resolved moment is stored anonymised and aggregated. Any department can ask the pool a question in plain language through Gemini.</p></div>
+    <p class="big reveal">Football is decided on the pitch. It is lived in the stands.</p>
+    <p class="body grey reveal">Every matchday, 75,000 people in the Arena make the call in their heads. Who should come on. What has to change. Nobody ever hears it. We think the club should.</p>
+  </div>
+</section>
+
+<!-- 03 · One sentence -->
+<section class="center">
+  <div class="wrap">
+    <p class="eyebrow reveal">How it feels</p>
+    <h2 class="headline reveal">A question. A tap. A voice.</h2>
+    <div class="three">
+      <div class="thing reveal">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#ff3b52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="10" y="12" width="44" height="40" rx="8"/><path d="M20 26h16M20 34h24M20 42h10"/></svg>
+        <h3>A poll.</h3><p>A short, positive question at the moment it matters.</p>
+      </div>
+      <div class="thing reveal">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#ff3b52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="8" y="12" width="48" height="40" rx="6"/><path d="M32 12v40M32 26a6 6 0 1 1 0 12a6 6 0 1 1 0-12"/><circle cx="18" cy="24" r="2.5"/><circle cx="46" cy="40" r="2.5"/><path d="M20 38l6-4M40 22l6 4"/></svg>
+        <h3>A tactics board.</h3><p>Who comes on. What shape. Your call, in seconds.</p>
+      </div>
+      <div class="thing reveal">
+        <svg viewBox="0 0 64 64" fill="none" stroke="#ff3b52" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M14 38V26l26-10v32L14 38z"/><path d="M14 26H9v12h5M20 40l3 10h7l-3-8"/><path d="M48 24c3 2 3 14 0 16M53 19c6 5 6 21 0 26"/></svg>
+        <h3>A fan chant.</h3><p>Your reason, in your language, heard with everyone else's.</p>
+      </div>
+    </div>
+    <p class="payoff reveal">Not three things. One 12th Coach.</p>
+  </div>
+</section>
+
+<!-- 04 · Proof: named features, numbers as experiences -->
+<section class="light center">
+  <div class="wrap">
+    <p class="eyebrow reveal">The details</p>
+    <h2 class="headline reveal">Small numbers. Big feelings.</h2>
+    <div class="proof">
+      <div class="fact reveal"><div class="name">Decision Moment</div><div class="figure">30 seconds.</div>
+        <p>All it takes. <b>Tap your call</b>, add a reason if you like, back to the match.</p></div>
+      <div class="fact reveal"><div class="name">Fan Pulse</div><div class="figure">One sentence.</div>
+        <p>Gemini turns <b>every answer, in every language</b>, into one live summary of what fans think and why.</p></div>
+      <div class="fact reveal"><div class="name">Loyalty Boost</div><div class="figure">Up to 2× louder.</div>
+        <p>Every home match this season makes your voice count a little more. <b>Twenty matches, double weight.</b></p></div>
+      <div class="fact reveal"><div class="name">Fan IQ · Brave Call</div><div class="figure">+10. Then +5.</div>
+        <p>Call what the coach does and earn 10. Called it <b>while most fans disagreed</b>? Brave Call adds 5.</p></div>
     </div>
   </div>
 </section>
 
-<section class="band">
+<!-- 05 · Simplify: what we took out -->
+<section>
   <div class="wrap">
-    <h2>Try the prototype</h2>
-    <p class="intro">Four views on one live backend. Everything runs on simulated data with fictional player names and a fictional opponent.</p>
-    <div class="grid grid-4" style="margin-bottom:26px">
-      <a class="card view" href="/fan"><h3>Fan view</h3><p>Phone layout. Vote, watch the bars move, read the Fan Pulse, collect Fan IQ.</p><span class="go">Open →</span></a>
-      <a class="card view" href="/club"><h3>Club dashboard</h3><p>Weighted and unweighted results, breakdowns by stadium block and country, reason clusters.</p><span class="go">Open →</span></a>
-      <a class="card view" href="/operator"><h3>Operator panel</h3><p>Start the match, fire decision moments, enter what the coach actually did.</p><span class="go">Open →</span></a>
-      <a class="card view" href="/club#pool"><h3>Fan Insight Pool</h3><p>Season view across matches and the “Ask the pool” box, inside the club dashboard.</p><span class="go">Open →</span></a>
-    </div>
-    <div class="card">
-      <h3>The two-minute demo</h3>
-      <ol class="flow">
-        <li>Open the <a href="/operator">operator panel</a> and press “Start match”.</li>
-        <li>Open the <a href="/fan">fan view</a> on a phone (scan the code in the operator panel) or in a second tab.</li>
-        <li>Press “Fire next decision moment”, vote on the phone, and watch the bars and the Fan Pulse update.</li>
-        <li>Enter what the coach actually did and press “Resolve”. Fan IQ points land on the profile.</li>
-        <li>Open the <a href="/club">club dashboard</a>: the same moment with breakdowns, now stored in the Fan Insight Pool. Ask the pool a question.</li>
-      </ol>
+    <p class="eyebrow reveal">What we took out</p>
+    <h2 class="headline reveal">Some things don't belong in a stadium.</h2>
+    <div class="out">
+      <div class="out-row reveal"><h3>Votes against players.</h3><p>No fan is ever asked to rate a player down or vote someone off. Every question looks forward: who comes on, what changes, who impressed.</p></div>
+      <div class="out-row reveal"><h3>Fans overruling the coach.</h3><p>The coach always decides. Fans predict and say what they think. Being right is the reward.</p></div>
+      <div class="out-row reveal"><h3>Anyone's individual answers.</h3><p>The club sees totals and summaries. Never what one fan said. Anonymised, aggregated, with consent.</p></div>
     </div>
   </div>
 </section>
 
-<section class="band">
+<!-- 06 · Protect the price: value, not discounts -->
+<section class="light center">
   <div class="wrap">
-    <h2>Three deliberate choices</h2>
-    <p class="intro">The idea is built to fit the club's values and to be realistic to run.</p>
-    <div class="grid grid-3">
-      <div class="card"><h3>Positive questions only</h3><p class="muted">No fan is ever asked to rate a player negatively or to vote someone off. Questions look forward: who comes on, what changes, who impressed.</p></div>
-      <div class="card"><h3>The coach always decides</h3><p class="muted">Fans predict and voice their opinion. Nothing a fan taps changes what happens on the pitch.</p></div>
-      <div class="card"><h3>Anonymised and consent-based</h3><p class="muted">The club sees totals and summaries per decision moment, never an individual fan's answers. Fans can see what their answers are used for.</p></div>
+    <p class="eyebrow reveal">Rewards</p>
+    <h2 class="headline reveal">Earned, not bought.</h2>
+    <p class="lead grey reveal">No coupons. No discounts. Fan IQ grows with football knowledge and loyalty, and money can't speed it up.</p>
+    <div class="tiers">
+      <div class="tier reveal"><div class="pts">150 Fan IQ</div><h3>Fan scarf</h3><p>Your first season reward.</p></div>
+      <div class="tier reveal"><div class="pts">400 Fan IQ</div><h3>Match jersey</h3><p>For fans who keep calling it right.</p></div>
+      <div class="tier top reveal"><div class="pts">800 Fan IQ</div><h3>Stadium tour</h3><p>Behind the scenes, where the real decisions are made.</p></div>
     </div>
   </div>
 </section>
 
-<section class="band">
-  <div class="wrap">
-    <h2>First test</h2>
-    <p class="intro">The first step of our test plan is a one-match pilot with a closed group. We have started on campus.</p>
-    <div class="card pilot">
-      <h3 id="pilot-headline">First run: on campus, with a student club</h3>
-      <p id="pilot-text">We built this lightweight web prototype (Gemini API plus a simple live-vote backend) and ran it at our university together with a student club, with decision moments triggered manually by an operator.</p>
-      <div class="grid grid-4" id="pilot-stats" style="margin-top:16px" hidden></div>
+<!-- 07 · One more thing -->
+<section class="omt center">
+  <div class="glow"></div>
+  <div class="wrap" style="position:relative">
+    <p class="eyebrow reveal">And one more thing…</p>
+    <h2 class="headline reveal">Every answer makes the club smarter.</h2>
+    <p class="lead grey reveal">Each Decision Moment flows into the Fan Insight Pool. Match after match, the club builds its own source on what fans think, and any team can ask it in plain language.</p>
+    <div class="ask">
+      <div class="bubble q reveal">How did fans react to substitutions in away matches?</div>
+      <div class="bubble a reveal">In away matches, the fan majority called the coach's substitution in 38% of Decision Moments. The reasons fans gave most often: a threat on the counter and fresh legs.<small>Fan Insight Pool · Gemini · sample answer from the demo data</small></div>
     </div>
-    <div class="grid grid-2" style="margin-top:16px">
-      <div class="card"><h3>What we measure</h3>
-        <ol class="flow" style="margin-top:8px">
-          <li>Participation per decision moment and response time.</li>
+  </div>
+</section>
+
+<!-- 08 · Peak -->
+<section class="peak center light">
+  <div class="wrap">
+    <h2 class="display reveal">The 12th man. Finally on the team sheet.</h2>
+    <div class="reveal" style="margin-top:40px"><a class="btn btn-primary btn-hero" href="/demo">Try the demo</a></div>
+  </div>
+</section>
+
+<!-- 09 · First test -->
+<section class="center">
+  <div class="wrap">
+    <p class="eyebrow reveal">First test</p>
+    <h2 class="headline reveal">Already in front of real fans.</h2>
+    <div class="pilot-card reveal" style="background:#111113;border:1px solid #1f1f22">
+      <h3 id="pilot-headline" style="color:#f5f5f7">First run: on campus, with a student club</h3>
+      <p id="pilot-text" style="color:#a1a1a6">We built this lightweight web prototype (Gemini API plus a simple live-vote backend) and ran it at our university together with a student club, with Decision Moments triggered manually by an operator.</p>
+      <div class="stats" id="pilot-stats" hidden></div>
+    </div>
+    <div class="pilot-grid">
+      <div class="pilot-card reveal" style="background:#111113;border:1px solid #1f1f22">
+        <h3 style="color:#f5f5f7">What we measure</h3>
+        <ol style="color:#a1a1a6">
+          <li>Participation per Decision Moment and response time.</li>
           <li>Repeat participation across the 90 minutes.</li>
-          <li>Whether fans rate the Gemini summary as a fair reflection of their opinion.</li>
-          <li>Whether club teams find insights in the pool they would act on.</li>
-        </ol></div>
-      <div class="card"><h3>Next step</h3>
-        <p class="muted" id="pilot-next" style="margin-top:8px">The same setup with 200–500 volunteers from official fan clubs during one home match, with five to six decision moments. If more than half of the participants answer at least three moments and the club's content and fan-relations teams find usable insights, the next step is a full stadium block.</p></div>
+          <li>Whether fans rate the Fan Pulse as fair.</li>
+          <li>Whether club teams find insights they would act on.</li>
+        </ol>
+      </div>
+      <div class="pilot-card reveal" style="background:#111113;border:1px solid #1f1f22">
+        <h3 style="color:#f5f5f7">Next step</h3>
+        <p id="pilot-next" style="color:#a1a1a6">The same setup with 200–500 volunteers from official fan clubs during one home match, with five to six Decision Moments. If more than half answer at least three moments and the club's teams find usable insights, the next step is a full stadium block.</p>
+      </div>
     </div>
   </div>
 </section>
 
 <footer>
-  <div class="wrap">Concept submission for FC Bayern Fan AI-DEATION. Not an official FC Bayern product; no club crest, logos or sponsor marks are used. All player names, the opponent, match events and fan data in this prototype are fictional.</div>
+  <div class="wrap">
+    <nav><a href="/demo">Demo</a><a href="/fan">Fan view</a><a href="/club">Club dashboard</a><a href="/club#pool">Fan Insight Pool</a><a href="/operator">Operator panel</a></nav>
+    Concept submission for FC Bayern Fan AI-DEATION. Not an official FC Bayern product; no club crest, logos or sponsor marks are used. All player names, the opponent, match events and fan data in this prototype are fictional.
+  </div>
 </footer>
 
 <script>
-  // Pilot facts come from pilot.json so the team can update them without touching this page.
+  // Keynote pacing: each block fades in as it reaches the stage.
+  const io = 'IntersectionObserver' in window ? new IntersectionObserver((entries) => {
+    entries.forEach((e) => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.15 }) : null;
+  document.querySelectorAll('.reveal').forEach((el) => io ? io.observe(el) : el.classList.add('in'));
+
+  // Pilot facts come from pilot.json, so the team can update them without touching this page.
   fetch('/api/pilot-info').then((r) => r.json()).then((p) => {
     if (p.headline) document.getElementById('pilot-headline').textContent = p.headline;
     if (p.text) document.getElementById('pilot-text').textContent = p.text;
@@ -169,10 +344,10 @@
     if (!stats.length) return;
     const box = document.getElementById('pilot-stats');
     for (const s of stats) {
-      const tile = document.createElement('div'); tile.className = 'tile';
-      const label = document.createElement('div'); label.className = 'label'; label.textContent = s.label;
-      const value = document.createElement('div'); value.className = 'value'; value.textContent = s.value;
-      tile.append(label, value); box.append(tile);
+      const tile = document.createElement('div'); tile.className = 'stat';
+      const value = document.createElement('div'); value.className = 'v'; value.style.color = '#f5f5f7'; value.textContent = s.value;
+      const label = document.createElement('div'); label.className = 'l'; label.style.color = '#a1a1a6'; label.textContent = s.label;
+      tile.append(value, label); box.append(tile);
     }
     box.hidden = false;
   }).catch(() => {});

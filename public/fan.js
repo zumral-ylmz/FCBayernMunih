@@ -1,31 +1,32 @@
-/* 12th Coach — fan view (phone layout). */
+/* 12th Coach — fan view (phone layout). One main action per screen. */
 'use strict';
+
+const EMBED = window.self !== window.top || new URLSearchParams(location.search).has('embed');
+if (EMBED) document.body.classList.add('embed');
 
 let state = null;
 let me = null;
 let persona = store('12c-persona') || 'season';
 let source = null;
 let cardKey = null;       // structure of the current moment card
-let lastMomentId = null;  // to play the slide-in once per moment
+let lastMomentId = null;  // play the slide-in once per moment
 let feedKey = null;
 let profileKey = null;
+let card = null;          // { el, update(moment) }
 let draft = { option: null };
-let card = null;          // { update(moment) } for in-place updates
-const LETTERS = ['A', 'B', 'C', 'D'];
 
 function open() {
   if (source) source.close();
   source = connect({ fanId: fanId(), persona }, (msg) => { state = msg.state; me = msg.me || me; render(); });
 }
 
-$('#persona').value = persona;
-$('#persona').addEventListener('change', (ev) => {
-  persona = ev.target.value;
+function switchPersona(value) {
+  persona = value;
   store('12c-persona', persona);
   cardKey = feedKey = profileKey = null;
   draft = { option: null };
   open();
-});
+}
 
 function showTab(name) {
   $('#view-match').hidden = name !== 'match';
@@ -37,8 +38,27 @@ $('#tab-match').addEventListener('click', () => showTab('match'));
 $('#tab-profile').addEventListener('click', () => showTab('profile'));
 if (location.hash === '#profile') showTab('profile');
 
+/* ---- the ritual: first contact ---- */
+const seated = store('12c-seated') === '1';
+if (!seated) $('#seat').hidden = false;
+$('#seat-btn').addEventListener('click', () => {
+  store('12c-seated', '1');
+  $('#seat').classList.add('leave');
+  setTimeout(() => { $('#seat').hidden = true; }, 700);
+});
+function renderSeat() {
+  if ($('#seat').hidden || $('#seat-pass').childElementCount) return;
+  const row = (k, v) => h('div', {}, h('span', { text: k }), h('b', { text: v }));
+  $('#seat-pass').replaceChildren(
+    row('Fan', me.label),
+    row('Seat', me.detail),
+    row('Loyalty Boost', me.weight.toFixed(2) + '×'),
+    row('Fan IQ', fmt(me.fanIq)));
+}
+
 function render() {
   if (!state || !me) return;
+  renderSeat();
   renderHeader();
   renderMoment();
   renderFeed();
@@ -47,8 +67,7 @@ function render() {
 
 function renderHeader() {
   const m = state.match;
-  $('#status-text').textContent = m.status === 'live' ? 'LIVE · Matchday ' + m.matchday
-    : m.status === 'finished' ? 'Full time' : 'Kick-off soon';
+  $('#status-text').textContent = m.status === 'live' ? 'Live' : m.status === 'finished' ? 'Full time' : 'Kick-off soon';
   $('#live-dot').classList.toggle('on', m.status === 'live');
   $('#home-name').textContent = m.home.name;
   $('#away-name').textContent = m.away.name;
@@ -71,19 +90,18 @@ function renderMoment() {
     const key = 'idle|' + state.match.status;
     if (key !== cardKey) {
       cardKey = key; card = null;
-      const text = state.match.status === 'idle'
-        ? ['Waiting for kick-off', 'Decision moments will pop up here during the match.']
-        : state.match.status === 'live'
-          ? ['You are in the match', 'Keep watching. The next decision moment slides in here.']
-          : ['Full time', 'Thanks for coaching along today.'];
-      slot.replaceChildren(h('div', { class: 'idle' }, h('b', { text: text[0] }), text[1]));
+      const text = state.match.status === 'live'
+        ? ['Watch the match.', 'The next Decision Moment appears here.']
+        : state.match.status === 'finished' ? ['Full time.', 'Thanks for coaching along.']
+          : ['Kick-off soon.', 'Decision Moments appear here during the match.'];
+      slot.replaceChildren(h('div', { class: 'idle' }, h('b', { text: text[0] }), h('span', { text: text[1] })));
     }
     return;
   }
   const vote = me.votes[m.id];
   const voting = m.status === 'open' && !vote;
-  const key = voting ? [m.id, 'vote'].join('|') : JSON.stringify([m.id, m.status, vote || null, m.summary, m.coach,
-    me.ratings[m.id]]);
+  const key = voting ? m.id + '|vote'
+    : JSON.stringify([m.id, m.status, vote || null, m.summary, m.coach, me.ratings[m.id]]);
   if (key !== cardKey) {
     cardKey = key;
     card = voting ? voteCard(m) : resultCard(m, vote);
@@ -96,7 +114,7 @@ function renderMoment() {
 function countdown() {
   const text = h('span');
   const bar = h('i');
-  const el = h('div', { class: 'countdown' }, text, h('div', { class: 'bar' }, bar), h('span', { class: 'small muted', text: 'to answer' }));
+  const el = h('div', { class: 'countdown' }, h('div', { class: 'bar' }, bar), text);
   return {
     el,
     update(m) {
@@ -107,21 +125,11 @@ function countdown() {
   };
 }
 
-function headerBits(m) {
-  return [
-    h('div', { class: 'row' },
-      h('span', { class: 'chip chip-red', text: m.minute + "' · Decision moment" }),
-      h('span', { class: 'chip', text: TYPE_NAMES[m.type] })),
-    h('h2', { text: m.question }),
-    h('p', { class: 'muted small', text: m.context }),
-  ];
-}
-
 function voteCard(m) {
   const cd = countdown();
-  const error = h('p', { class: 'error', hidden: true });
-  const reason = h('input', { class: 'input why', maxlength: 140, placeholder: 'Why? One line, any language (optional)', 'aria-label': 'Your reason' });
-  const submit = h('button', { class: 'btn btn-primary btn-block', disabled: true, text: 'Lock in my call' });
+  const error = h('p', { class: 'error', hidden: true, style: { marginTop: '10px' } });
+  const reason = h('input', { class: 'why', maxlength: 140, placeholder: 'Add a reason, any language (optional)', 'aria-label': 'Your reason' });
+  const submit = h('button', { class: 'btn btn-primary btn-block', disabled: true, text: 'Make the call', style: { minHeight: '52px', fontSize: '16px' } });
   const buttons = m.options.map((o, i) => h('button', {
     class: 'opt', type: 'button', 'aria-pressed': 'false',
     onclick: () => {
@@ -129,8 +137,7 @@ function voteCard(m) {
       buttons.forEach((b, j) => b.setAttribute('aria-pressed', j === i));
       submit.disabled = false;
     },
-  }, h('span', { class: 'letter', style: { background: seriesColor(i) }, text: LETTERS[i] }),
-  h('span', {}, h('b', { text: o.label }), h('small', { text: o.sub }))));
+  }, h('span', {}, h('b', { text: o.label }), h('small', { text: o.sub })), h('span', { class: 'tick', 'aria-hidden': 'true' })));
 
   submit.addEventListener('click', async () => {
     if (!draft.option) return;
@@ -142,67 +149,78 @@ function voteCard(m) {
       if (!res.ok) { error.textContent = res.error; error.hidden = false; }
       render();
     } catch (e) {
-      error.textContent = 'Could not send your call. Check the connection and try again.';
+      error.textContent = 'Your call did not go through. Check the connection and try again.';
       error.hidden = false; submit.disabled = false;
     }
   });
 
-  const el = h('section', { class: 'moment' }, headerBits(m), cd.el, buttons, reason, submit, error,
-    h('p', { class: 'consent', text: `Your vote counts ${me.weight.toFixed(2)}× (${me.attended} home matches this season). The coach always decides; you predict and have your say.` }));
+  const el = h('section', { class: 'moment' },
+    h('div', { class: 'eb', text: m.minute + "' · Decision Moment" }),
+    h('h2', { text: m.question }),
+    cd.el, buttons, reason, submit, error);
   return { el, update: (nm) => cd.update(nm) };
+}
+
+function verdict(m, vote) {
+  const coach = m.options[m.coach].label;
+  if (vote && vote.pts > 0) {
+    return h('div', { class: 'verdict won' },
+      h('div', { class: 'small-line', text: `${m.minute}' · The coach went with ${coach}.` }),
+      h('div', { class: 'big', text: 'You called it.' }),
+      h('div', { class: 'pts' }, h('span', { text: '+10 Fan IQ' }), vote.pts > 10 ? h('span', { text: '+5 Brave Call' }) : null));
+  }
+  return h('div', { class: 'verdict plain' },
+    h('div', { class: 'small-line', text: vote ? `Your call: ${m.options[vote.option].label}. No points lost.` : 'You sat this one out.' }),
+    h('div', { class: 'big', text: `The coach went with ${coach}.` }));
 }
 
 function resultCard(m, vote) {
   const cd = m.status === 'open' ? countdown() : null;
   const fills = [], values = [];
   const rows = m.options.map((o, i) => {
-    fills[i] = h('div', { class: 'fill', style: { background: seriesColor(i) } });
+    const mine = vote && vote.option === i;
+    fills[i] = h('div', { class: 'fill', style: { background: mine ? 'var(--red)' : 'var(--bar)' } });
     values[i] = h('span', { class: 'res-val' });
     return h('div', { class: 'res-row' },
       h('div', { class: 'res-head' },
-        h('span', { class: 'dot', style: { background: seriesColor(i) } }),
         h('span', { class: 'res-label', text: o.label }),
-        vote && vote.option === i ? h('span', { class: 'chip chip-red', text: 'Your call' }) : null,
-        m.coach === i ? h('span', { class: 'chip chip-ink', text: 'Coach' }) : null,
+        mine ? h('span', { class: 'tag mine', text: 'Your call' }) : null,
+        m.coach === i ? h('span', { class: 'tag', text: 'Coach' }) : null,
         values[i]),
       h('div', { class: 'track' }, fills[i]));
   });
   const count = h('span', { class: 'num' });
-
-  let outcome = null;
-  if (m.status === 'resolved') {
-    const coachLabel = m.options[m.coach].label;
-    if (!vote) outcome = h('div', { class: 'points zero', text: `${m.resolveLabel}: ${coachLabel}. You did not call this one.` });
-    else if (vote.pts > 0) outcome = h('div', { class: 'points', text: `${m.resolveLabel}: ${coachLabel}. You called it: +${vote.pts} Fan IQ${vote.pts > 10 ? ' (minority bonus)' : ''}` });
-    else outcome = h('div', { class: 'points zero', text: `${m.resolveLabel}: ${coachLabel}. No points this time, and none lost.` });
-  } else if (m.status === 'closed') {
-    outcome = h('div', { class: 'points zero', text: 'Voting closed. Waiting for the coach\'s decision…' });
-  }
+  const line = m.status === 'open' ? 'Your call is in. Watch the crowd.'
+    : m.status === 'closed' ? 'Voting closed. The coach decides next.' : null;
 
   let fair = null;
   if (m.summary && m.status !== 'open') {
-    const rated = me.ratings[m.id];
-    if (rated === undefined) {
+    if (me.ratings[m.id] === undefined) {
       const send = async (value) => {
         const res = await api('/api/rate', { fanId: fanId(), persona, momentId: m.id, fair: value });
         if (res.me) me = res.me;
         render();
       };
-      fair = h('div', { class: 'fair' }, h('span', { text: 'Is this a fair reflection of fan opinion?' }),
-        h('button', { class: 'btn btn-sm', text: 'Yes, fair', onclick: () => send(true) }),
+      fair = h('div', { class: 'fair' }, h('span', { text: 'Is this summary fair?' }),
+        h('button', { class: 'btn btn-sm', text: 'Yes', onclick: () => send(true) }),
         h('button', { class: 'btn btn-sm', text: 'Not quite', onclick: () => send(false) }));
     } else {
-      fair = h('p', { class: 'fair muted', text: 'Thanks. Your rating helps check that the summary is fair.' });
+      fair = h('p', { class: 'fair', text: 'Thanks. That helps keep the Fan Pulse fair.' });
     }
   }
 
-  const el = h('section', { class: 'moment' }, headerBits(m), cd ? cd.el : null,
-    h('p', { class: 'small muted', style: { margin: '10px 0' } }, count, ' answers · weighted by loyalty'),
-    rows,
+  const el = h('section', { class: 'moment' },
+    m.status === 'resolved' ? verdict(m, vote) : null,
+    h('div', { class: 'eb', text: m.minute + "' · Decision Moment" }),
+    h('h2', { text: m.question }),
+    cd ? cd.el : null,
+    line ? h('p', { class: 'state-line', text: line }) : null,
+    h('div', { class: 'bars' }, rows),
+    h('p', { class: 'small muted', style: { margin: '-2px 0 12px' } }, count, ' answers, weighted by Loyalty Boost'),
     h('div', { class: 'pulse' },
       h('div', { class: 'pulse-head' }, 'Fan Pulse', sourceBadge(m.summary)),
-      h('p', { text: m.summary ? m.summary.text : 'Gemini is reading the first answers…' })),
-    fair, outcome);
+      h('p', { text: m.summary ? m.summary.text : 'Gemini is reading every answer…' })),
+    fair);
 
   return {
     el,
@@ -222,14 +240,13 @@ function renderFeed() {
   feedKey = key;
   const feed = $('#feed');
   if (!older.length) { feed.replaceChildren(); return; }
-  feed.replaceChildren(h('div', { class: 'feed-title', text: 'Earlier in this match' }), ...older.map((m) => {
+  feed.replaceChildren(h('div', { class: 'feed-title', text: 'Earlier' }), ...older.map((m) => {
     const vote = me.votes[m.id];
-    const mine = vote ? 'You called ' + m.options[vote.option].label : 'You did not call this one';
-    const coach = m.coach != null ? ' · Coach: ' + m.options[m.coach].label : ' · Coach still deciding';
-    const pts = vote && vote.pts != null ? h('span', { class: vote.pts ? 'chip chip-good' : 'chip', text: '+' + vote.pts + ' Fan IQ' }) : null;
+    const sub = (vote ? 'You: ' + m.options[vote.option].label : 'No call') + (m.coach != null ? ' · Coach: ' + m.options[m.coach].label : '');
+    const pts = vote && vote.pts != null ? h('span', { class: 'p' + (vote.pts ? '' : ' zero'), text: '+' + vote.pts }) : null;
     return h('div', { class: 'feed-item' },
-      h('div', { class: 'row' }, h('span', { class: 'chip', text: m.minute + "'" }), h('span', { class: 'spacer' }), pts),
-      h('b', { text: m.question }), mine + coach);
+      h('span', { class: 'm', text: m.minute + "'" }),
+      h('span', { class: 't' }, h('b', { text: m.question }), h('span', { text: sub })), pts);
   }));
 }
 
@@ -238,39 +255,43 @@ function renderProfile() {
   if (key === profileKey) return;
   profileKey = key;
   const next = me.rewards.find((r) => r.cost > me.fanIq);
+  const select = h('select', { class: 'input', style: { width: '100%' }, 'aria-label': 'Demo fan',
+    onchange: (ev) => switchPersona(ev.target.value) },
+  [['season', 'Season-ticket holder'], ['occasional', 'Occasional visitor'], ['remote', 'Remote fan abroad']]
+    .map(([v, t]) => h('option', { value: v, selected: v === persona, text: t })));
+
   $('#view-profile').replaceChildren(
+    h('div', { class: 'iq' },
+      h('div', { class: 'who', text: me.label + ' · ' + me.detail }),
+      h('div', { class: 'big num', text: fmt(me.fanIq) }),
+      h('div', { class: 'lbl', text: 'Fan IQ' }),
+      h('div', { class: 'next', text: next ? `${next.cost - me.fanIq} to the ${next.name.toLowerCase()}` : 'Every reward unlocked' })),
     h('div', { class: 'card' },
-      h('div', { class: 'iq' },
-        h('div', { class: 'small muted', text: me.label + ' · ' + me.detail }),
-        h('div', { class: 'big num', text: fmt(me.fanIq) }),
-        h('div', { class: 'small', style: { fontWeight: 700 }, text: 'Fan IQ' }),
-        h('p', { class: 'small muted', style: { marginTop: '6px' }, text: next ? `${next.cost - me.fanIq} points to the ${next.name.toLowerCase()}` : 'Every reward unlocked' }))),
-    h('div', { class: 'card' },
-      h('h3', { text: 'Your vote weight' }),
-      h('div', { class: 'weight-box' },
+      h('h3', { text: 'Loyalty Boost' }),
+      h('div', { class: 'boost' },
         h('div', { class: 'x', text: me.weight.toFixed(2) + '×' }),
-        h('div', { class: 'small' }, h('b', { text: `${me.attended} home matches this season → weight ${me.weight.toFixed(2)}×` }),
-          h('div', { class: 'muted', text: '1.0 + 0.05 per home match attended, capped at 2.0×. Loyalty counts, spending does not.' })))),
+        h('div', { class: 'small' }, h('b', { text: `${me.attended} home matches this season.` }),
+          h('div', { class: 'muted', text: 'Every home match adds 0.05×. Twenty matches, double weight.' })))),
     h('div', { class: 'card' },
-      h('h3', { text: 'Rewards' }),
-      h('p', { class: 'sub', text: 'Earned with football knowledge and loyalty.' }),
-      me.rewards.map((r) => {
-        const done = me.fanIq >= r.cost;
-        return h('div', { class: 'reward' },
-          h('div', { class: 'row small' }, h('b', { text: r.name }), h('span', { class: 'spacer' }),
-            done ? h('span', { class: 'chip chip-good', text: '✓ Unlocked' }) : h('span', { class: 'muted num', text: `${fmt(me.fanIq)} / ${fmt(r.cost)}` })),
-          h('div', { class: 'track', style: { marginTop: '5px' } },
-            h('div', { class: 'fill', style: { width: Math.min(100, me.fanIq / r.cost * 100) + '%' } })));
-      })),
+      h('h3', { text: 'Earned, not bought.' }),
+      h('p', { class: 'sub', text: 'Rewards for football knowledge and loyalty.' }),
+      me.rewards.map((r) => h('div', { class: 'reward' },
+        h('div', { class: 'row small' }, h('b', { text: r.name }), h('span', { class: 'spacer' }),
+          me.fanIq >= r.cost ? h('span', { class: 'chip chip-good', text: 'Unlocked' }) : h('span', { class: 'muted num', text: `${fmt(me.fanIq)} / ${fmt(r.cost)}` })),
+        h('div', { class: 'track' }, h('div', { class: 'fill', style: { width: Math.min(100, me.fanIq / r.cost * 100) + '%' } }))))),
     h('div', { class: 'card' },
-      h('h3', { text: 'Points history' }),
-      h('p', { class: 'sub', text: '+10 when your call matches the coach, +5 bonus if you were in the minority. Never negative.' }),
+      h('h3', { text: 'Points' }),
+      h('p', { class: 'sub', text: '+10 for calling what the coach does. +5 Brave Call if most fans disagreed. Never negative.' }),
       me.history.map((item) => h('div', { class: 'hist' },
         h('div', {}, h('div', { text: item.label }), h('div', { class: 'muted', text: item.match })),
         h('div', { class: 'pts', style: { color: item.pts ? 'var(--good-text)' : 'var(--muted)' }, text: '+' + item.pts })))),
     h('div', { class: 'card' },
-      h('h3', { text: 'What your answers are used for' }),
-      h('p', { class: 'small muted', text: 'Your answers are stored anonymised and aggregated in the Fan Insight Pool, with your consent. Club teams see totals and summaries per decision moment, never what an individual fan answered.' })));
+      h('h3', { text: 'Your answers' }),
+      h('p', { class: 'small muted', text: 'Stored anonymised and aggregated in the Fan Insight Pool, with your consent. The club sees totals and summaries, never what you answered.' })),
+    h('div', { class: 'card' },
+      h('h3', { text: 'Demo fan' }),
+      h('p', { class: 'sub', text: 'Switch fans to see how the Loyalty Boost changes.' }),
+      select));
 }
 
 open();

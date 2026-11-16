@@ -35,7 +35,7 @@ PERSONAS = {
         "detail": "Südkurve · Munich",
         "block": 0, "country": 0, "attended": 16, "fanIq": 365,
         "history": [
-            {"label": "Called the 3-4-3 switch — minority and right", "match": "vs SC Altenberg", "pts": 15},
+            {"label": "Called the 3-4-3 switch · Brave Call +5", "match": "vs SC Altenberg", "pts": 15},
             {"label": "Player of the moment matched the staff's pick", "match": "vs TSV Rheinau", "pts": 10},
             {"label": "Called the substitution", "match": "vs VfR Hohenfels", "pts": 10},
         ],
@@ -46,7 +46,7 @@ PERSONAS = {
         "block": 3, "country": 0, "attended": 3, "fanIq": 120,
         "history": [
             {"label": "Called the substitution", "match": "vs Union Kessel", "pts": 10},
-            {"label": "Called the game plan — minority and right", "match": "vs SV Bergstedt", "pts": 15},
+            {"label": "Called the game plan · Brave Call +5", "match": "vs SV Bergstedt", "pts": 15},
         ],
     },
     "remote": {

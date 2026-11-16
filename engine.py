@@ -249,7 +249,7 @@ class Engine:
                 mine = m["spec"]["options"][vote["option"]]["label"]
                 if matched:
                     text = "%d' · Called %s%s" % (m["firedMinute"], mine,
-                                                  " — minority and right" if points > 10 else "")
+                                                  " · Brave Call +5" if points > 10 else "")
                 else:
                     text = "%d' · Called %s, the coach chose %s" % (m["firedMinute"], mine, label)
                 fan["history"].insert(0, {"label": text, "match": "vs %s · live" % C.AWAY["name"], "pts": points})

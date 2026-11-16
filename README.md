@@ -18,7 +18,8 @@ Then open <http://localhost:8000>. The terminal also prints the address phones o
 
 | View | Address | What it shows |
 |---|---|---|
-| About | `/` | The idea, the demo flow, the first test |
+| About | `/` | The idea, told like a product launch |
+| Demo | `/demo` | Guided demo: the phone on the left, one sentence and one button per step on the right |
 | Fan view | `/fan` | Phone layout: vote, live bars, Fan Pulse, Fan IQ profile |
 | Club dashboard | `/club` | Weighted vs unweighted result, breakdowns by block and country, reason clusters, timeline |
 | Fan Insight Pool | `/club#pool` | Season view, stored records, "Ask the pool" |
@@ -34,13 +35,17 @@ The model defaults to `gemini-3.5-flash-lite`; change it with `GEMINI_MODEL`.
 
 ## The two-minute demo
 
+The quickest way is `/demo`: press **Kick off**, make the call on the phone, and follow the single button on the right through the match.
+
+To run it by hand, with fans on their own phones:
+
 1. Open `/operator` and press **Start match**.
 2. Open `/fan` on a phone (scan the code in the operator panel) or in a second tab.
 3. Press **Fire next decision moment**, vote, and watch the bars and the Fan Pulse update.
 4. Choose what the coach actually did and press **Resolve**. Fan IQ points land on the profile.
 5. Open `/club`: the same moment with breakdowns. It now also appears in the Fan Insight Pool, and an "Ask the pool" question refers to it.
 
-The "choose demo fan" menu in the fan view switches between a season-ticket holder, an occasional visitor and a remote fan abroad, which shows how the vote weight differs.
+The "Demo fan" menu at the bottom of the Fan IQ tab switches between a season-ticket holder, an occasional visitor and a remote fan abroad, which shows how the vote weight differs.
 
 ## Running a pilot with real participants
 
@@ -52,10 +57,14 @@ The "choose demo fan" menu in the fan view switches between a season-ticket hold
 
 ## Rules of the idea, in code
 
-- Vote weight: `1.0 + 0.05` per home match attended this season, capped at `2.0` (`vote_weight` in `engine.py`).
-- Fan IQ: `+10` if the fan's option matches the coach's decision, `+5` bonus if the fan was in the minority and still right, never negative (`fan_iq_points` in `engine.py`).
+- Loyalty Boost (vote weight): `1.0 + 0.05` per home match attended this season, capped at `2.0` (`vote_weight` in `engine.py`).
+- Fan IQ: `+10` if the fan's option matches the coach's decision, `+5` Brave Call bonus if the fan was in the minority and still right, never negative (`fan_iq_points` in `engine.py`).
 - No question asks fans to rate a player negatively or to vote someone off (`content.py`).
 - Club views only ever receive aggregates. No individual fan's answers are visible there.
+
+## Design
+
+The look and the copy follow a few fixed rules: one type family in two weights, one signature colour (Südkurve Red) on black and white, one main action per screen, numbers told as experiences ("30 seconds", "up to 2× louder"), and the same names for the same things everywhere: Decision Moment, Fan Pulse, Fan IQ, Loyalty Boost, Brave Call, Fan Insight Pool.
 
 ## Hosting
 
@@ -74,5 +83,5 @@ engine.py     match simulation, voting, Fan IQ, Fan Insight Pool, pilot metrics
 gemini.py     server-side Gemini calls
 content.py    fictional match script, decision moments, reasons, seed data
 pilot.json    text and numbers for the "First test" section
-public/       the four views (plain HTML, CSS and JavaScript)
+public/       the views (plain HTML, CSS and JavaScript)
 ```
