@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12th Coach · Club dashboard</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .scoreline { font-weight: 700; }
+  .timeline { position: relative; height: 100px; margin: 10px 12px 0; }
+  .timeline .axis { position: absolute; left: 0; right: 0; top: 70px; height: 4px; border-radius: 2px; background: var(--surface-2); }
+  .timeline .progress { position: absolute; left: 0; top: 70px; height: 4px; border-radius: 2px; background: var(--red); transition: width .5s linear; }
+  .timeline .tick { position: absolute; top: 80px; transform: translateX(-50%); font-size: 11px; color: var(--muted); }
+  .marker {
+    position: absolute; top: 0; transform: translateX(-50%); display: flex; flex-direction: column; align-items: center; gap: 3px;
+    background: none; border: 0; cursor: pointer; padding: 0; min-width: 44px;
+  }
+  .marker .pin {
+    min-width: 40px; height: 30px; padding: 0 8px; border-radius: 9px; display: grid; place-items: center; font-size: 12px; font-weight: 800;
+    background: var(--surface); border: 2px solid var(--axis); color: var(--ink-2); font-variant-numeric: tabular-nums;
+  }
+  .marker .stem { width: 2px; height: 16px; background: var(--axis); }
+  .marker .state { font-size: 11px; line-height: 16px; color: var(--muted); white-space: nowrap; }
+  .marker.open .pin { background: var(--red-strong); border-color: var(--red-strong); color: #fff; }
+  .marker.closed .pin, .marker.resolved .pin { border-color: var(--ink); color: var(--ink); }
+  .marker.sel .pin { box-shadow: 0 0 0 3px var(--red-soft), 0 0 0 4px var(--red); }
+  .marker:disabled { cursor: default; }
+  .marker.pending .pin { border-style: dashed; }
+  .empty { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty b { display: block; font-size: 18px; color: var(--ink); margin-bottom: 4px; }
+  .ask-row { display: flex; gap: 8px; }
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+  .chips button { border: 1px solid var(--line); background: var(--surface); border-radius: 999px; padding: 7px 12px; font-size: 13px; cursor: pointer; min-height: 36px; }
+  .chips button:hover { border-color: var(--red); color: var(--red); }
+  .answer { margin-top: 14px; }
+  .filters { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 10px; }
+  .page section { margin-top: 22px; }
+  .section-title { font-size: 18px; margin-bottom: 12px; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">12</span>12th Coach</a>
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" id="tab-live" aria-selected="true">Live match</button>
+    <button class="tab" role="tab" id="tab-pool" aria-selected="false">Fan Insight Pool</button>
+  </div>
+  <span class="chip chip-good" data-tip="Only aggregated data is stored and shown here. No individual fan's answers are visible anywhere in this dashboard.">Anonymised · consent-based · aggregates only</span>
+  <span class="spacer"></span>
+  <nav class="navlinks"><a href="/fan">Fan view</a><a href="/operator">Operator</a><a href="/">About</a></nav>
+</header>
+
+<main class="page" id="view-live">
+  <div class="grid grid-4" id="tiles"></div>
+  <section class="card">
+    <div class="row"><h3 style="margin:0">Decision moments in this match</h3><span class="spacer"></span><span class="scoreline" id="scoreline"></span></div>
+    <div class="timeline" id="timeline"></div>
+  </section>
+  <section id="detail"></section>
+</main>
+
+<main class="page" id="view-pool" hidden>
+  <div class="grid grid-4" id="pool-tiles"></div>
+  <section>
+    <h2 class="section-title">Ask the pool</h2>
+    <div class="card">
+      <p class="sub" style="margin-bottom:10px">Ask in plain language. Gemini answers from the stored, aggregated records and names the matches it used.</p>
+      <form class="ask-row" id="ask-form">
+        <input class="input" id="ask-input" maxlength="300" placeholder="e.g. How did fans react to substitutions in away matches?" aria-label="Question for the Fan Insight Pool">
+        <button class="btn btn-primary" id="ask-btn">Ask</button>
+      </form>
+      <div class="chips" id="ask-chips"></div>
+      <div class="answer" id="answer"></div>
+    </div>
+  </section>
+  <section>
+    <h2 class="section-title">Season view</h2>
+    <div class="grid grid-3">
+      <div class="card"><h3>Fan majority matched the coach</h3><p class="sub">Share of decision moments per match</p><div class="chart" id="chart-match"></div></div>
+      <div class="card"><h3>Participation per match</h3><p class="sub">Fans who answered at least one moment</p><div class="chart" id="chart-part"></div></div>
+      <div class="card"><h3>Most common reason clusters</h3><p class="sub">Number of decision moments where the cluster was in the top three</p><div id="chart-clusters"></div></div>
+    </div>
+  </section>
+  <section>
+    <h2 class="section-title">Stored decision moments</h2>
+    <div class="card">
+      <div class="filters">
+        <select class="input" id="f-venue" aria-label="Venue"><option value="">Home and away</option><option value="home">Home</option><option value="away">Away</option></select>
+        <select class="input" id="f-type" aria-label="Type"><option value="">All types</option><option value="sub">Substitution</option><option value="shape">Shape</option><option value="potm">Player of the moment</option><option value="plan">Game plan</option></select>
+        <span class="spacer"></span><span class="muted small" id="rec-count" style="align-self:center"></span>
+      </div>
+      <div class="table-wrap"><table class="data"><thead><tr>
+        <th>Match</th><th class="r">Min</th><th>Type</th><th>Question</th><th>Fan majority</th><th>Coach did</th><th>Matched</th><th class="r">Responses</th>
+      </tr></thead><tbody id="rec-body"></tbody></table></div>
+    </div>
+    <div id="rec-detail" style="margin-top:16px"></div>
+  </section>
+</main>
+
+<script src="/common.js"></script>
+<script src="/club.js"></script>
+</body>
+</html>

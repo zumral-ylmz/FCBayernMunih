@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>12th Coach · Operator panel</title>
+<link rel="stylesheet" href="/styles.css">
+<style>
+  .layout { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+  @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } }
+  .stack-v > * + * { margin-top: 16px; }
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; }
+  .controls .btn { flex: 1 1 150px; }
+  .status { margin-top: 14px; padding: 12px; border-radius: 10px; background: var(--surface-2); font-weight: 600; }
+  .status.wait { background: var(--red-soft); color: var(--red); }
+  .mrow { border: 1px solid var(--line); border-radius: 12px; padding: 12px; margin-top: 10px; }
+  .mrow.active { border-color: var(--red); }
+  .mrow .resolve { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; align-items: center; }
+  .mrow .resolve select { flex: 1 1 180px; }
+  .setting { display: flex; align-items: center; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+  .setting:last-child { border-bottom: 0; }
+  .setting label { flex: 1; }
+  .setting input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--red-strong); }
+  .join { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+  #qr { background: #fff; padding: 8px; border-radius: 10px; width: 156px; height: 156px; }
+  #qr:empty { display: none; }
+  .join-url { font-weight: 700; word-break: break-all; }
+  table.metrics { width: 100%; border-collapse: collapse; font-size: 13px; margin-top: 8px; }
+  table.metrics th, table.metrics td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: right; font-variant-numeric: tabular-nums; }
+  table.metrics th:first-child, table.metrics td:first-child { text-align: left; }
+  table.metrics th { color: var(--muted); font-size: 12px; font-weight: 600; }
+</style>
+</head>
+<body>
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">12</span>12th Coach</a>
+  <span class="chip chip-red">Operator panel</span>
+  <span class="spacer"></span>
+  <nav class="navlinks"><a href="/fan" target="_blank">Fan view</a><a href="/club" target="_blank">Club dashboard</a><a href="/">About</a></nav>
+</header>
+<main class="page">
+  <p class="error" id="auth-error" hidden>This panel is protected. Open it as /operator?key=YOUR_OPERATOR_KEY.</p>
+  <div class="layout">
+    <div class="stack-v">
+      <section class="card">
+        <h3>Match control</h3>
+        <p class="sub">The 90 minutes play in about three minutes. The clock holds at each decision moment until you fire it.</p>
+        <div class="controls">
+          <button class="btn btn-primary" id="btn-start">Start match</button>
+          <button class="btn btn-primary" id="btn-fire">Fire next decision moment</button>
+          <button class="btn" id="btn-close">Close voting now</button>
+          <button class="btn" id="btn-reset">Reset demo</button>
+        </div>
+        <div class="status" id="status"></div>
+        <p class="error" id="action-error" hidden style="margin-top:8px"></p>
+      </section>
+      <section class="card">
+        <h3>Decision moments</h3>
+        <p class="sub">After voting closes, enter what the coach actually did. That resolves the moment, awards Fan IQ and stores the record in the Fan Insight Pool.</p>
+        <div id="moments"></div>
+      </section>
+    </div>
+    <div class="stack-v">
+      <section class="card">
+        <h3>Fans join here</h3>
+        <p class="sub">Phones on the same network scan this code. No login.</p>
+        <div class="join"><div id="qr"></div><div><div class="join-url" id="join-url"></div><p class="small muted" id="join-hint"></p></div></div>
+      </section>
+      <section class="card">
+        <h3>Settings</h3>
+        <div class="setting"><label for="set-crowd"><b>Simulated crowd</b><div class="small muted">About 20,000 synthetic fans vote alongside real phones. Turn off for a real-participants-only pilot.</div></label><input type="checkbox" id="set-crowd"></div>
+        <div class="setting"><label for="set-auto"><b>Fire moments automatically</b><div class="small muted">Otherwise the clock waits for you at each moment.</div></label><input type="checkbox" id="set-auto"></div>
+        <div class="setting"><label for="set-window"><b>Voting window</b><div class="small muted">Applies to the next moment you fire.</div></label>
+          <select class="input" id="set-window"><option value="15">15 seconds</option><option value="30">30 seconds</option><option value="45">45 seconds</option><option value="60">60 seconds</option></select></div>
+        <div class="notice" id="gemini-status" style="margin-top:12px"></div>
+      </section>
+      <section class="card">
+        <h3>Pilot metrics</h3>
+        <p class="sub">Real phones only, aggregated. These are the numbers the test plan asks for.</p>
+        <div class="grid grid-2" id="pilot-tiles" style="gap:10px"></div>
+        <table class="metrics"><thead><tr><th>Moment</th><th>Answered</th><th>Participation</th><th>Median time</th></tr></thead><tbody id="pilot-rows"></tbody></table>
+      </section>
+    </div>
+  </div>
+</main>
+<script src="/common.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js" defer></script>
+<script src="/operator.js" defer></script>
+</body>
+</html>

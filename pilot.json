@@ -1,0 +1,11 @@
+{
+  "headline": "First run: on campus, with a student club",
+  "text": "We built this lightweight web prototype (Gemini API plus a simple live-vote backend) and ran it at our university together with a student club, with decision moments triggered manually by an operator.",
+  "stats": [
+    { "label": "Participants", "value": null },
+    { "label": "Decision moments", "value": null },
+    { "label": "Answered 3+ moments", "value": null },
+    { "label": "Rated the summary fair", "value": null }
+  ],
+  "next": "The same setup with 200–500 volunteers from official fan clubs during one home match, with five to six decision moments. If more than half of the participants answer at least three moments and the club's content and fan-relations teams find usable insights, the next step is a full stadium block."
+}
